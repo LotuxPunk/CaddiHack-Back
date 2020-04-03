@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Ce fichier est utilisé par le processus de publication/package de votre projet web. Vous pouvez personnaliser le comportement de ce processus
+en modifiant ce fichier MSBuild. Pour en savoir plus à ce sujet, visitez https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAjUxWBqKKxECTQG03qVsg6QAAAAACAAAAAAAQZgAAAAEAACAAAAC4HRYBwDu0aidHv2r4y5rlcNCythhszhAhXnNhZAMCagAAAAAOgAAAAAIAACAAAAAN+W00FnSJ1ve3AGpwC0qN5PjEpKpzblPGJu+cnhatRIAAAAD2MmtUR725n0/MjQ8bERQG2q7FtoqvMig8BGB+puZ09blPeUqHfv4vN5MK6Bs7kBcjXl7Q0d3Cz9blVysvY7ZS35yohJpMK4u9I8zO+kg8XSe6fMoeb34pK9KyhlYXelgjtCmWYH17b0f5kpxIO525pUYPPbtxDQdiCk+w0Ay+1EAAAABhRAeK96YuDcARqtqQ675uxKPzVc1MGYUf0G3sq4XTWGTcJyZXNhaI5bnR/Ce5bzWHt64Le0qz9KTOWW6drDzo</EncryptedPassword>
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="DefaultConnection">
+      <Value>Server=91.211.152.22%3bdatabase=caddieHackDB%3bUser id=stfahhadmin%3bPassword=cwS8yYN7JLjhGPgC%3b</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>
