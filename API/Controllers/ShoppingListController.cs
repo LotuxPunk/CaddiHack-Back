@@ -46,7 +46,7 @@ namespace API.Controllers
                                 where i.OwnerNavigation.Email == person
                                 select new ShoppingListDTOout()
                                 {
-                                    Name = i.ShopNavigation.Name,
+                                    Name = i.Name,
                                     Delivered = i.Delivered,
                                     Shop = i.ShopNavigation.Name,
                                     Owner = i.OwnerNavigation.FirstName,
@@ -58,22 +58,66 @@ namespace API.Controllers
             return Ok(shoppingLists);
         }
 
-        
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id)
+        {
+            string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            
+            if (email == null)
+            {
+                return NotFound();
+            }
+
+            ShoppingList shoppingList =  await _context.ShoppingList.FindAsync(id);
+            Person deliverer = _context.Person.FirstOrDefault(person => person.Email == email);
+
+            if (shoppingList == null)
+            {
+                return NotFound();
+            }
+
+            shoppingList.Deliverer = deliverer.PersonId;
+
+            _context.Attach(shoppingList);
+            _context.Entry(shoppingList).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ShoppingListDTOin shoppingList)
+        public async Task<IActionResult> Post([FromBody] ShoppingListDTOin shoppingListDTOin)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _context.ShoppingList.Add(shoppingList.ShoppingList);
-            await _context.SaveChangesAsync();
+            string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            Person personFound = _context.Person.FirstOrDefault(person => person.Email == email);
 
-            shoppingList.ShoppingListItem.ForEach(x => 
+            if (personFound == null)
             {
-                _context.ShoppingListItem.Add(x);
+                return NotFound();
+            }
+
+            ShoppingList shoppingList = new ShoppingList();
+            shoppingList.Name = shoppingListDTOin.ListName;
+            shoppingList.Delivered = false;
+            shoppingList.Shop = shoppingListDTOin.ShopId;
+            shoppingList.Owner = personFound.PersonId;
+
+            _context.ShoppingList.Add(shoppingList);
+            _context.SaveChanges();
+
+            shoppingListDTOin.Items.ForEach(item => 
+            {
+                ShoppingListItem shoppingListItem = new ShoppingListItem();
+                shoppingListItem.ShoppingList = shoppingList.ShoppingListId;
+                shoppingListItem.Item = item.Item;
+                shoppingListItem.Quantity = item.Quantity;
+                _context.ShoppingListItem.Add(shoppingListItem);
                 _context.SaveChanges();
             });
             
-            return Created($"api/Shop/{shoppingList.ShoppingList.ShoppingListId}", shoppingList.ShoppingList);
+            return Created($"api/Shop/{shoppingList.ShoppingListId}", shoppingList);
         }
         
         [HttpGet]
@@ -92,7 +136,7 @@ namespace API.Controllers
                                 && i.Delivered == false
                                 select new ShoppingListDTOout()
                                 {
-                                    Name = i.ShopNavigation.Name,
+                                    Name = i.Name,
                                     Delivered = i.Delivered,
                                     Shop = i.ShopNavigation.Name,
                                     Owner = i.OwnerNavigation.FirstName,
@@ -124,6 +168,8 @@ namespace API.Controllers
             {
                 return Unauthorized();
             }
+
+            shoppingList.Delivered = true;
 
             _context.Attach(shoppingList);
             _context.Entry(shoppingList).State = EntityState.Modified;

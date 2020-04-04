@@ -7,8 +7,8 @@ namespace DTO
 {
     public class ShoppingListDTOin
     {
-        public ShoppingList ShoppingList { get; set; }
-
-        public List<ShoppingListItem> ShoppingListItem { get; set; }
+        public int ShopId { get; set; }
+        public string ListName { get; set; }
+        public List<ItemDTOin> Items { get; set; }
     }
 }

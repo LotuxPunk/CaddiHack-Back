@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using DTO;
 
 namespace API.Controllers
 {
@@ -40,9 +41,64 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            var shopItems = _context.Item.Where(x => x.ShopNavigation == shopFound);
+            var shopItems = from i in _context.Item
+                            where i.ShopNavigation == shopFound
+                            select new ItemDTOout()
+                            {
+                                Label = i.Label,
+                                Unit = i.Unit,
+                                Price = i.Price,
+                                Item = i.Id
+                            };
+ 
             return Ok(shopItems);
         }
+
+        /*
+        [HttpPost]
+        [ProducesResponseType(typeof(Person), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesErrorResponseType(typeof(ProblemDetails))]
+        public async Task<ActionResult<Person>> Post([FromBody]Person person)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            Boolean emailExist = await _context.Person.AnyAsync(per => per.Email == person.Email);
+
+            if (emailExist)
+            {
+                throw new BusinessException(ExceptionConstants.EmailAlreadyUsed, StatusCodes.Status400BadRequest);
+            }
+
+            Boolean localityExist = await _context.Locality.AnyAsync(loc => loc.LocalityId == person.Locality);
+
+            if (!localityExist)
+            {
+                throw new BusinessException(ExceptionConstants.LocalityNotFound, StatusCodes.Status404NotFound);
+            }
+
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(person.Password));
+
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                person.Password = builder.ToString();
+
+            }
+
+            _context.Person.Add(person);
+            await _context.SaveChangesAsync();
+            return Created($"api/Item/{person.PersonId}", person);
+        }
+        */
+
+
 
 
     }
