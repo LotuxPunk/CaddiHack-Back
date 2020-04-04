@@ -36,8 +36,7 @@ namespace API.Controllers
         public IActionResult Get()
         {
             string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            Person person;
-            Shop shop;
+
 
             var shops = from i in _context.Shop
                         select new ShopDTOout()
@@ -47,9 +46,9 @@ namespace API.Controllers
                             Address = i.Address,
                             PicturePath = i.PicturePath,
                             Locality = i.Locality,
-                            IsFavorite = _context.Favorite.Any(person, shop);
+                            //IsFavorite = _context.Favorite.Any(person, shop);
                        };
-            //return Ok(_context.Shop.ToArray());
+            return Ok(shops);
         }
 
 
