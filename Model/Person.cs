@@ -8,7 +8,6 @@ namespace DAL
         public Person()
         {
             Favorite = new HashSet<Favorite>();
-            PersonRole = new HashSet<PersonRole>();
             ShoppingListDelivererNavigation = new HashSet<ShoppingList>();
             ShoppingListOwnerNavigation = new HashSet<ShoppingList>();
         }
@@ -19,11 +18,11 @@ namespace DAL
         public string Email { get; set; }
         public string Password { get; set; }
         public string Address { get; set; }
+        public string Role { get; set; }
         public int Locality { get; set; }
 
         public virtual Locality LocalityNavigation { get; set; }
         public virtual ICollection<Favorite> Favorite { get; set; }
-        public virtual ICollection<PersonRole> PersonRole { get; set; }
         public virtual ICollection<ShoppingList> ShoppingListDelivererNavigation { get; set; }
         public virtual ICollection<ShoppingList> ShoppingListOwnerNavigation { get; set; }
     }

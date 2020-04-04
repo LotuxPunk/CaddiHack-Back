@@ -14,7 +14,7 @@ using System.Security.Claims;
 
 namespace API.Controllers
 {
-    [AllowAnonymous]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class FavoriteController : ApiController
@@ -29,8 +29,8 @@ namespace API.Controllers
             _context = context;
         }
 
-        [HttpGet]
         [Route("myFavorites")]
+        [HttpGet]
         [ProducesResponseType(typeof(Favorite), StatusCodes.Status200OK)]
         public IActionResult Get()
         {

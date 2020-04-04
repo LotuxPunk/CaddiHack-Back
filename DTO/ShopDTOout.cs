@@ -10,7 +10,7 @@ namespace DTO
         public string Name { get; set; }
         public string Address { get; set; }
         public string PicturePath { get; set; }
-        public int Locality { get; set; }
+        public string LocalityName { get; set; }
         public bool IsFavorite {get; set;}
 
     }

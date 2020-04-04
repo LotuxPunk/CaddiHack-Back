@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace API.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class LocalityController : ApiController

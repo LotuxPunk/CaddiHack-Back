@@ -19,10 +19,9 @@ namespace DAL
         public virtual DbSet<Item> Item { get; set; }
         public virtual DbSet<Locality> Locality { get; set; }
         public virtual DbSet<Person> Person { get; set; }
-        public virtual DbSet<PersonRole> PersonRole { get; set; }
-        public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<Shop> Shop { get; set; }
         public virtual DbSet<ShoppingList> ShoppingList { get; set; }
+        public virtual DbSet<ShoppingListItem> ShoppingListItem { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -38,7 +37,7 @@ namespace DAL
             modelBuilder.Entity<Favorite>(entity =>
             {
                 entity.HasKey(e => new { e.Person, e.Shop })
-                    .HasName("PK__Favorite__41EC061B250FC2AB");
+                    .HasName("PK__Favorite__41EC061B610FFDF4");
 
                 entity.HasOne(d => d.PersonNavigation)
                     .WithMany(p => p.Favorite)
@@ -61,10 +60,18 @@ namespace DAL
                     .HasMaxLength(255)
                     .IsUnicode(false);
 
-                entity.HasOne(d => d.ShoppingListNavigation)
+                entity.Property(e => e.Price).HasColumnName("price");
+
+                entity.Property(e => e.Unit)
+                    .IsRequired()
+                    .HasColumnName("unit")
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.ShopNavigation)
                     .WithMany(p => p.Item)
-                    .HasForeignKey(d => d.ShoppingList)
-                    .HasConstraintName("FKItem405484");
+                    .HasForeignKey(d => d.Shop)
+                    .HasConstraintName("FKItem711087");
             });
 
             modelBuilder.Entity<Locality>(entity =>
@@ -83,7 +90,7 @@ namespace DAL
             modelBuilder.Entity<Person>(entity =>
             {
                 entity.HasIndex(e => e.Email)
-                    .HasName("UQ__Person__AB6E616491E42083")
+                    .HasName("UQ__Person__AB6E6164495CEF9B")
                     .IsUnique();
 
                 entity.Property(e => e.PersonId).HasColumnName("personId");
@@ -118,46 +125,17 @@ namespace DAL
                     .HasMaxLength(255)
                     .IsUnicode(false);
 
+                entity.Property(e => e.Role)
+                    .IsRequired()
+                    .HasColumnName("role")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
                 entity.HasOne(d => d.LocalityNavigation)
                     .WithMany(p => p.Person)
                     .HasForeignKey(d => d.Locality)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKPerson955365");
-            });
-
-            modelBuilder.Entity<PersonRole>(entity =>
-            {
-                entity.HasKey(e => new { e.Person, e.Role })
-                    .HasName("PK__Person_R__C6630D6FE21002F8");
-
-                entity.ToTable("Person_Role");
-
-                entity.Property(e => e.Role)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('customer')");
-
-                entity.HasOne(d => d.PersonNavigation)
-                    .WithMany(p => p.PersonRole)
-                    .HasForeignKey(d => d.Person)
-                    .HasConstraintName("FKPerson_Rol250937");
-
-                entity.HasOne(d => d.RoleNavigation)
-                    .WithMany(p => p.PersonRole)
-                    .HasForeignKey(d => d.Role)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FKPerson_Rol767352");
-            });
-
-            modelBuilder.Entity<Role>(entity =>
-            {
-                entity.HasKey(e => e.Name)
-                    .HasName("PK__Role__72E12F1A726F0EF3");
-
-                entity.Property(e => e.Name)
-                    .HasColumnName("name")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<Shop>(entity =>
@@ -168,6 +146,11 @@ namespace DAL
                     .IsRequired()
                     .HasColumnName("address")
                     .HasMaxLength(255)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Description)
+                    .HasColumnName("description")
+                    .HasMaxLength(1000)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Name)
@@ -193,10 +176,7 @@ namespace DAL
             {
                 entity.Property(e => e.ShoppingListId).HasColumnName("shoppingListId");
 
-                entity.Property(e => e.Delivered)
-                    .IsRequired()
-                    .HasColumnName("delivered")
-                    .HasDefaultValueSql("('0')");
+                entity.Property(e => e.Delivered).HasColumnName("delivered");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -212,8 +192,34 @@ namespace DAL
                 entity.HasOne(d => d.OwnerNavigation)
                     .WithMany(p => p.ShoppingListOwnerNavigation)
                     .HasForeignKey(d => d.Owner)
-                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("owner");
+
+                entity.HasOne(d => d.ShopNavigation)
+                    .WithMany(p => p.ShoppingList)
+                    .HasForeignKey(d => d.Shop)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FKShoppingLi519458");
+            });
+
+            modelBuilder.Entity<ShoppingListItem>(entity =>
+            {
+                entity.HasKey(e => new { e.ShoppingList, e.Item })
+                    .HasName("PK__Shopping__1649D2AF861CBE6F");
+
+                entity.ToTable("ShoppingList_Item");
+
+                entity.Property(e => e.Quantity).HasColumnName("quantity");
+
+                entity.HasOne(d => d.ItemNavigation)
+                    .WithMany(p => p.ShoppingListItem)
+                    .HasForeignKey(d => d.Item)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKShoppingLi447487");
+
+                entity.HasOne(d => d.ShoppingListNavigation)
+                    .WithMany(p => p.ShoppingListItem)
+                    .HasForeignKey(d => d.ShoppingList)
+                    .HasConstraintName("FKShoppingLi913741");
             });
 
             OnModelCreatingPartial(modelBuilder);

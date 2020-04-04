@@ -72,15 +72,9 @@ namespace API.Controllers
 
             };
 
-            var personRoles = from i in _context.PersonRole
-                              where i.PersonNavigation == personFound
-                              select i.Role;
-
-
-            foreach(var role in personRoles)
-            {
-                claims.Add(new Claim("roles", role));
-            }
+            claims.Add(new Claim("role", personFound.Role));
+            claims.Add(new Claim("name", personFound.Name));
+            claims.Add(new Claim("firstName", personFound.Name));
 
             JwtSecurityToken token = new JwtSecurityToken(
                 issuer: _jwtOptions.Issuer,

@@ -35,7 +35,7 @@ namespace API.Controllers
         [ProducesResponseType(typeof(ShopDTOout), StatusCodes.Status200OK)]
         public IActionResult Get()
         {
-            string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            //string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
 
             var shops = from i in _context.Shop
@@ -45,7 +45,7 @@ namespace API.Controllers
                             Name = i.Name,
                             Address = i.Address,
                             PicturePath = i.PicturePath,
-                            Locality = i.Locality,
+                            LocalityName = i.LocalityNavigation.Name + " (" + i.LocalityNavigation.ZipCode + ")"
                             //IsFavorite = _context.Favorite.Any(person, shop);
                        };
             return Ok(shops);
@@ -76,7 +76,7 @@ namespace API.Controllers
             newShop.Address = shop.Address;
             newShop.PicturePath = uploadResult.SecureUri.ToString();
             newShop.Locality = shop.Locality;
-
+            newShop.Description = shop.Description;
             _context.Shop.Add(newShop);
             await _context.SaveChangesAsync();
             return Created($"api/Shop/{newShop.ShopId}", newShop);

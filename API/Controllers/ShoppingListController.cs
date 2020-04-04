@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DAL;
 using Model;
+using DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -43,11 +44,38 @@ namespace API.Controllers
 
             var shoppingLists = from i in _context.ShoppingList
                                 where i.OwnerNavigation.Email == person
-                                select new ShoppingList();
+                                select new ShoppingListDTOout()
+                                {
+                                    Name = i.ShopNavigation.Name,
+                                    Delivered = i.Delivered,
+                                    Shop = i.ShopNavigation.Name,
+                                    Owner = i.OwnerNavigation.FirstName,
+                                    DelivererName = i.DelivererNavigation.FirstName,
+                                    TotalPrice = i.ShoppingListItem.Sum(x => x.Quantity * x.ItemNavigation.Price),
+                                    NbItems = i.ShoppingListItem.Sum(x => x.Quantity)
+                                };
 
             return Ok(shoppingLists);
         }
 
+        
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] ShoppingListDTOin shoppingList)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            _context.ShoppingList.Add(shoppingList.ShoppingList);
+            await _context.SaveChangesAsync();
+
+            shoppingList.ShoppingListItem.ForEach(x => 
+            {
+                _context.ShoppingListItem.Add(x);
+                _context.SaveChanges();
+            });
+            
+            return Created($"api/Shop/{shoppingList.ShoppingList.ShoppingListId}", shoppingList.ShoppingList);
+        }
+        
         [HttpGet]
         [Route("myHelp")]
         public IActionResult MyHelps()
@@ -62,10 +90,17 @@ namespace API.Controllers
             var shoppingLists = from i in _context.ShoppingList
                                 where i.DelivererNavigation.Email == person
                                 && i.Delivered == false
-                                select new ShoppingList();
-
+                                select new ShoppingListDTOout()
+                                {
+                                    Name = i.ShopNavigation.Name,
+                                    Delivered = i.Delivered,
+                                    Shop = i.ShopNavigation.Name,
+                                    Owner = i.OwnerNavigation.FirstName,
+                                    DelivererName = i.DelivererNavigation.FirstName
+                                };
             return Ok(shoppingLists);
         }
+        
 
         [HttpPut]
         [Route("delivered/{id}")]

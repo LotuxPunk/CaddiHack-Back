@@ -10,31 +10,42 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
     [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
-    public class RoleController : ApiController
+    public class ItemController : ApiController
     {
         private readonly ILogger<LocalityController> _logger;
         private readonly CaddieHackContext _context;
 
 
-        public RoleController(ILogger<LocalityController> logger, CaddieHackContext context)
+        public ItemController(ILogger<LocalityController> logger, CaddieHackContext context)
         {
             _logger = logger;
             _context = context;
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        [ProducesResponseType(typeof(Shop), StatusCodes.Status200OK)]
-        public IActionResult Get()
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Item), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Get(int id)
         {
-            return Ok(_context.Role.ToArray());
+            Shop shopFound = await _context.Shop.FindAsync(id);
+
+            if(shopFound == null)
+            {
+                return NotFound();
+            }
+
+            var shopItems = _context.Item.Where(x => x.ShopNavigation == shopFound);
+            return Ok(shopItems);
         }
+
 
     }
 }
+
+
