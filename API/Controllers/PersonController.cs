@@ -29,12 +29,6 @@ namespace API.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            return Ok(_context.Person.ToArray());
-        }
-
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Person), StatusCodes.Status200OK)]
         public IActionResult Get(int id)

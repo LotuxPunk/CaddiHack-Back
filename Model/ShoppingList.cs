@@ -12,12 +12,13 @@ namespace DAL
 
         public int ShoppingListId { get; set; }
         public string Name { get; set; }
-        public bool Delivery { get; set; }
-        public int Person { get; set; }
-        public int Shop { get; set; }
+        public bool? Delivered { get; set; }
+        public int? Shop { get; set; }
+        public int? Owner { get; set; }
+        public int? Deliverer { get; set; }
 
-        public virtual Person PersonNavigation { get; set; }
-        public virtual Shop ShopNavigation { get; set; }
+        public virtual Person DelivererNavigation { get; set; }
+        public virtual Person OwnerNavigation { get; set; }
         public virtual ICollection<Item> Item { get; set; }
     }
 }

@@ -42,11 +42,58 @@ namespace API.Controllers
             }
 
             var shoppingLists = from i in _context.ShoppingList
-                                where i.PersonNavigation.Email == person
+                                where i.OwnerNavigation.Email == person
                                 select new ShoppingList();
 
             return Ok(shoppingLists);
         }
 
+        [HttpGet]
+        [Route("myHelp")]
+        public IActionResult MyHelps()
+        {
+            string person = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            if (person == null)
+            {
+                return NotFound();
+            }
+
+            var shoppingLists = from i in _context.ShoppingList
+                                where i.DelivererNavigation.Email == person
+                                && i.Delivered == false
+                                select new ShoppingList();
+
+            return Ok(shoppingLists);
+        }
+
+        [HttpPut]
+        [Route("delivered/{id}")]
+        public async Task<IActionResult> Delivered(int id)
+        {
+            string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            
+            if (email == null)
+            {
+                return NotFound();
+            }
+
+            ShoppingList shoppingList = await _context.ShoppingList.FindAsync(id);
+            
+            if(shoppingList == null)
+            {
+                return NotFound();
+            }
+
+            if(shoppingList.DelivererNavigation.Email != email || shoppingList.OwnerNavigation.Email != email)
+            {
+                return Unauthorized();
+            }
+
+            _context.Attach(shoppingList);
+            _context.Entry(shoppingList).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
