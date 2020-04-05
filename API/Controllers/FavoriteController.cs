@@ -5,12 +5,14 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using DAL;
 using Model;
+using DTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Cors;
 
 namespace API.Controllers
 {
@@ -31,7 +33,7 @@ namespace API.Controllers
 
         [Route("myFavorites")]
         [HttpGet]
-        [ProducesResponseType(typeof(Favorite), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FavoriteDTOout), StatusCodes.Status200OK)]
         public IActionResult Get()
         {
             string person = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -41,18 +43,26 @@ namespace API.Controllers
                 return NotFound();
             }
             var myFavorites = from i in _context.Favorite
-                                where i.PersonNavigation.Email == person
-                                select new Favorite();
+                              where i.PersonNavigation.Email == person
+                              select new FavoriteDTOout()
+                              {
+                                  Name = i.ShopNavigation.Name,
+                                  Address = i.ShopNavigation.Address,
+                                  PicturePath = i.ShopNavigation.PicturePath,
+                                  Description = i.ShopNavigation.Description,
+                                  Locality = i.ShopNavigation.LocalityNavigation.Name,
+                                  ShopId = i.ShopNavigation.ShopId,
+                              };
 
             return Ok(myFavorites);
-        }
+    }
 
-        /*
-        [HttpPost]
+        [HttpPost("{shopId}")]
         [ProducesResponseType(typeof(Favorite), StatusCodes.Status200OK)]
-        public IActionResult Post([FromBody] int shopId)
+        public async Task<IActionResult> Post(int shopId)
         {
             string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            Person personFound = _context.Person.FirstOrDefault(person => person.Email == email);
             if (email == null)
             {
                 return NotFound();
@@ -68,16 +78,26 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            Favorite favorite = new Favorite(person.Pe, shop)
-             _context.Rental.Add(rental);
+            Favorite favorite = new Favorite();
+            favorite.Person = personFound.PersonId;
+            favorite.Shop = shopId;
+
+            Favorite heart = _context.Favorite.Where(x => x.Person == personFound.PersonId && x.Shop == shop.ShopId).FirstOrDefault();
+
+            if(heart != null)
+            {
+                _context.Favorite.Remove(heart);
+            }
+
+            else
+            {
+                _context.Favorite.Add(favorite);
+            }
+
             await _context.SaveChangesAsync();
-            return Created($"api/Picture/{rental.RentalId}", rental);
-
-
-
-            return Ok(myFavorites);
+            return NoContent();
         }
-        */
+        
 
     }
 }

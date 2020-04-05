@@ -31,12 +31,10 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
         [ProducesResponseType(typeof(ShopDTOout), StatusCodes.Status200OK)]
         public IActionResult Get()
         {
-            //string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
+            string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             var shops = from i in _context.Shop
                         select new ShopDTOout()
@@ -45,8 +43,8 @@ namespace API.Controllers
                             Name = i.Name,
                             Address = i.Address,
                             PicturePath = i.PicturePath,
-                            LocalityName = i.LocalityNavigation.Name + " (" + i.LocalityNavigation.ZipCode + ")"
-                            //IsFavorite = _context.Favorite.Any(person, shop);
+                            LocalityName = i.LocalityNavigation.Name + " (" + i.LocalityNavigation.ZipCode + ")",
+                            IsFavorite = _context.Favorite.Where(x => x.PersonNavigation.Email == email && x.Shop == i.ShopId).Any()
                        };
             return Ok(shops);
         }

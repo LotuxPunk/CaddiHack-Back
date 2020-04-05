@@ -5,6 +5,7 @@ namespace DAL
 {
     public partial class Favorite
     {
+        public int FavoriteId { get; set; }
         public int Person { get; set; }
         public int Shop { get; set; }
 

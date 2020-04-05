@@ -36,8 +36,7 @@ namespace DAL
         {
             modelBuilder.Entity<Favorite>(entity =>
             {
-                entity.HasKey(e => new { e.Person, e.Shop })
-                    .HasName("PK__Favorite__41EC061B610FFDF4");
+                entity.Property(e => e.FavoriteId).HasColumnName("favoriteId");
 
                 entity.HasOne(d => d.PersonNavigation)
                     .WithMany(p => p.Favorite)

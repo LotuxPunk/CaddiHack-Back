@@ -144,7 +144,36 @@ namespace API.Controllers
                                 };
             return Ok(shoppingLists);
         }
-        
+
+
+        [HttpGet("{shopId}")]
+        public IActionResult ShopLists(int shopId)
+        {
+            string person = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            if (person == null)
+            {
+                return NotFound();
+            }
+
+            var shopLists = from i in _context.ShoppingList
+                            where i.Shop == shopId && i.Delivered == false
+                            select new ShoppingListDTOout()
+                            {
+                                ListId = i.ShoppingListId,
+                                Name = i.Name,
+                                Delivered = i.Delivered,
+                                Shop = i.ShopNavigation.Name,
+                                Owner = i.OwnerNavigation.FirstName,
+                                DelivererName = i.DelivererNavigation.FirstName,
+                                TotalPrice = i.ShoppingListItem.Sum(x => x.Quantity * x.ItemNavigation.Price),
+                                NbItems = i.ShoppingListItem.Sum(x => x.Quantity)
+                            };
+
+            return Ok(shopLists);
+
+    }
+
 
         [HttpPut]
         [Route("delivered/{id}")]
@@ -152,22 +181,8 @@ namespace API.Controllers
         {
             string email = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             
-            if (email == null)
-            {
-                return NotFound();
-            }
-
-            ShoppingList shoppingList = await _context.ShoppingList.FindAsync(id);
+            var shoppingList = await _context.ShoppingList.FindAsync(id);
             
-            if(shoppingList == null)
-            {
-                return NotFound();
-            }
-
-            if(shoppingList.DelivererNavigation.Email != email || shoppingList.OwnerNavigation.Email != email)
-            {
-                return Unauthorized();
-            }
 
             shoppingList.Delivered = true;
 

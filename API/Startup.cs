@@ -1,26 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DAL;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Azure.Storage;
-using System.Reflection;
-using Microsoft.Extensions.Localization;
-using Microsoft.AspNetCore.Localization;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
-using AutoMapper;
+using System.Text;
 
 namespace API
 {
@@ -38,14 +30,12 @@ namespace API
         {
 
             services.AddCors(
-        options => options.AddPolicy("AllowClientOrigin",
-                            builder => builder.WithOrigins("http://localhost/:<port>")
+            options => options.AddPolicy("AllowClientOrigin",
+                            builder => builder.WithOrigins("*")
                                 .AllowAnyMethod()
                                 .AllowAnyHeader()
                                 .AllowAnyOrigin())
-);
-
-
+            );
             services.AddControllers();
             services.AddDbContext<CaddieHackContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             // TODO : ces valeurs doivent pas être hardcodé mais récup par configuration
@@ -77,7 +67,7 @@ namespace API
             };
 
             services.AddLocalization(options => options.ResourcesPath = "DAL");
-            
+
 
             services
                 .AddAuthentication(
@@ -95,7 +85,7 @@ namespace API
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddControllersWithViews()
-            .AddNewtonsoftJson(options => 
+            .AddNewtonsoftJson(options =>
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
 
